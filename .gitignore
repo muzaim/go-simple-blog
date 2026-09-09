@@ -1,0 +1,9 @@
+.service-db
+.vscode
+.cache
+.modcache
+tmp
+app/tmp
+app/.cache
+app/.modcache
+app/.env
