@@ -4,7 +4,7 @@ RESTful API untuk platform blog sederhana menggunakan Golang, Gin Framework, GOR
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Clone Repository
 
@@ -33,6 +33,6 @@ Server akan berjalan di: `http://localhost:8080`
 
 ---
 
-## 🧪 Postman Collection
+## Postman Collection
 
 Import file [`postman_collection.json`](postman_collection.json) di root direktori ke Postman untuk menguji semua API endpoint.
