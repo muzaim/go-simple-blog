@@ -5,6 +5,8 @@ services:
     environment:
       GOMODCACHE: /go/src/app/.modcache
       GOCACHE: /go/src/app/.cache
+      DB_HOST: db
+      DB_PORT: "3306"
     env_file:
       - ./app/.env
     volumes:
