@@ -3,19 +3,14 @@ package main
 import (
 	"app/internal/config"
 	"app/internal/handler"
-	"app/internal/middleware"
 	"app/internal/repository"
+	"app/internal/router"
 	"app/internal/service"
 	"fmt"
-
-	"github.com/gin-gonic/gin"
+	"os"
 )
 
 func main() {
-	// http.HandleFunc("/", handler)
-	// fmt.Println("Server is running on http://localhost:8080")
-	// http.ListenAndServe(":8080", nil)
-
 	db := config.ConnectDB()
 
 	userRepo := repository.NewUserRepository(db)
@@ -30,21 +25,16 @@ func main() {
 	postHandler := handler.NewPostHandler(postService)
 	commentHandler := handler.NewCommentHandler(commentService)
 
-	r := gin.Default()
+	r := router.SetupRouter(router.RouterConfig{
+		AuthHandler:    authHandler,
+		PostHandler:    postHandler,
+		CommentHandler: commentHandler,
+	})
 
-	r.POST("/register", authHandler.Register)
-	r.POST("/login", authHandler.Login)
-	r.GET("/posts", postHandler.GetPosts)
-	r.GET("/posts/:id", postHandler.GetPostByID)
-	r.GET("/posts/:id/comments", commentHandler.GetComments)
-	protected := r.Group("/")
-	protected.Use(middleware.AuthMiddleware())
-	{
-		protected.POST("/posts", postHandler.CreatePost)
-		protected.PUT("/posts/:id", postHandler.UpdatePost)
-		protected.DELETE("/posts/:id", postHandler.DeletePost)
-		protected.POST("/posts/:id/comments", commentHandler.CreateComment)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
 	}
-	fmt.Println("Server is running on http://localhost:8080")
-	r.Run(":8080")
+	fmt.Printf("Server running on http://localhost:%s\n", port)
+	r.Run(":" + port)
 }

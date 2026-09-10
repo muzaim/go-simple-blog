@@ -13,8 +13,8 @@ type PostHandler struct {
 	postService service.PostService
 }
 
-func NewPostHandler(postService service.PostService) PostHandler {
-	return PostHandler{postService: postService}
+func NewPostHandler(postService service.PostService) *PostHandler {
+	return &PostHandler{postService: postService}
 }
 
 func (h *PostHandler) CreatePost(c *gin.Context) {
