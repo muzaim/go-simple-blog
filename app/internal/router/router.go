@@ -11,6 +11,7 @@ type RouterConfig struct {
 	AuthHandler    *handler.AuthHandler
 	PostHandler    *handler.PostHandler
 	CommentHandler *handler.CommentHandler
+	BookHandler    *handler.BookHandler
 }
 
 func SetupRouter(cfg RouterConfig) *gin.Engine {
@@ -21,6 +22,12 @@ func SetupRouter(cfg RouterConfig) *gin.Engine {
 	r.GET("/posts", cfg.PostHandler.GetPosts)
 	r.GET("/posts/:id", cfg.PostHandler.GetPostByID)
 	r.GET("/posts/:id/comments", cfg.CommentHandler.GetComments)
+
+	r.POST("/books", cfg.BookHandler.CreateBook)
+	r.GET("/books", cfg.BookHandler.GetBooks)
+	r.GET("/books/:id", cfg.BookHandler.GetBookByID)
+	r.PUT("/books/:id", cfg.BookHandler.UpdateBook)
+	r.DELETE("/books/:id", cfg.BookHandler.DeleteBook)
 
 	protected := r.Group("/")
 	protected.Use(middleware.AuthMiddleware())
