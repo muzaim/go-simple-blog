@@ -12,6 +12,9 @@ import (
 
 func main() {
 	db := config.ConnectDB()
+	rdb := config.ConnectRedis()
+
+	defer rdb.Close()
 
 	userRepo := repository.NewUserRepository(db)
 	postRepo := repository.NewPostRepository(db)
@@ -19,7 +22,7 @@ func main() {
 	bookRepo := repository.NewBookRepository(db)
 
 	authService := service.NewAuthService(userRepo)
-	postService := service.NewPostService(postRepo)
+	postService := service.NewPostService(postRepo, rdb)
 	commentService := service.NewCommentService(commentRepo, postRepo)
 	bookService := service.NewBookService(bookRepo)
 
