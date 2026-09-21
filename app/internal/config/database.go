@@ -22,7 +22,6 @@ func ConnectDB() *gorm.DB {
 	var db *gorm.DB
 	var err error
 
-	// Retry connection max 10x (menunggu container MySQL siap sepenuhnya)
 	for i := 1; i <= 10; i++ {
 		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 		if err == nil {
