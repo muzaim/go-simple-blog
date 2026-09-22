@@ -3,6 +3,7 @@ package handler
 import (
 	"app/internal/domain"
 	"app/internal/service"
+	"encoding/csv"
 	"net/http"
 	"strconv"
 
@@ -99,3 +100,95 @@ func (h *PostHandler) DeletePost(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Artikel berhasil dihapus"})
 }
+
+func (h *PostHandler) BulkCreatePost(c *gin.Context) {
+	var req domain.BulkCreatePostRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	userID := c.MustGet("userID").(uint)
+	result, err := h.postService.BulkCreatePosts(req, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "Bulk post processing completed",
+		"data":    result,
+	})
+}
+
+func (h *PostHandler) UploadCSVPost(c *gin.Context) {
+	fileHeader, err := c.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "File CSV required (key: 'file')"})
+		return
+	}
+
+	file, err := fileHeader.Open()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to open uploaded file"})
+		return
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+	records, err := reader.ReadAll()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse CSV file"})
+		return
+	}
+
+	var posts []domain.CreatePostRequest
+	for i, record := range records {
+		if i == 0 {
+			// Skip CSV header line if present
+			continue
+		}
+		if len(record) < 2 {
+			continue
+		}
+		posts = append(posts, domain.CreatePostRequest{
+			Title:   record[0],
+			Content: record[1],
+		})
+	}
+
+	userID := c.MustGet("userID").(uint)
+	req := domain.BulkCreatePostRequest{Posts: posts}
+	result, err := h.postService.BulkCreatePosts(req, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "CSV bulk post processing completed",
+		"data":    result,
+	})
+}
+
+func (h *PostHandler) BulkCreatePostSequential(c *gin.Context) {
+	var req domain.BulkCreatePostRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	userID := c.MustGet("userID").(uint)
+	result, err := h.postService.BulkCreatePostsSequential(req, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "Sequential bulk post processing completed (no goroutines)",
+		"data":    result,
+	})
+}
+
+

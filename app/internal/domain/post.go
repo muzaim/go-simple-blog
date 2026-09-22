@@ -21,3 +21,19 @@ type UpdatePostRequest struct {
 	Title   string `json:"title" binding:"required"`
 	Content string `json:"content" binding:"required"`
 }
+
+type BulkCreatePostRequest struct {
+	Posts []CreatePostRequest `json:"posts" binding:"required,dive"`
+}
+
+type PostJobResult struct {
+	Post  *Post
+	Err   error
+	Index int
+}
+
+type BulkCreatePostResponse struct {
+	TotalProcessed int `json:"total_processed"`
+	TotalSuccess   int `json:"total_success"`
+	TotalFailed    int `json:"total_failed"`
+}

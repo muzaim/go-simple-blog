@@ -34,6 +34,9 @@ func SetupRouter(cfg RouterConfig) *gin.Engine {
 	{
 		// Blog Posts
 		protected.POST("/posts", cfg.PostHandler.CreatePost)
+		protected.POST("/posts/bulk", cfg.PostHandler.BulkCreatePost)
+		protected.POST("/posts/bulk-sync", cfg.PostHandler.BulkCreatePostSequential)
+		protected.POST("/posts/upload-csv", cfg.PostHandler.UploadCSVPost)
 		protected.PUT("/posts/:id", cfg.PostHandler.UpdatePost)
 		protected.DELETE("/posts/:id", cfg.PostHandler.DeletePost)
 		// Comments
