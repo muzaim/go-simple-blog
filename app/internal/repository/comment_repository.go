@@ -20,11 +20,15 @@ func NewCommentRepository(db *gorm.DB) CommentRepository {
 }
 
 func (r *commentRepository) Create(comment *domain.Comment) error {
-	return r.db.Create(comment).Error
+	err := r.db.Create(comment).Error
+	if err != nil {
+		return err
+	}
+	return r.db.Preload("User").First(comment, comment.ID).Error
 }
 
 func (r *commentRepository) FindByPostID(postID uint) ([]domain.Comment, error) {
 	var comments []domain.Comment
-	err := r.db.Where("post_id=?", postID).Order("created_at desc").Find(&comments).Error
+	err := r.db.Preload("User").Where("post_id=?", postID).Order("created_at desc").Find(&comments).Error
 	return comments, err
 }

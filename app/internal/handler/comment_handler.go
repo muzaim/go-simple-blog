@@ -30,8 +30,9 @@ func (h *CommentHandler) CreateComment(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	userID := c.MustGet("userID").(uint)
 
-	comment, err := h.commentService.CreateComment(uint(postID), req)
+	comment, err := h.commentService.CreateComment(uint(postID), req, userID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

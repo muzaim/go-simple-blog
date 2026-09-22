@@ -7,7 +7,7 @@ import (
 )
 
 type CommentService interface {
-	CreateComment(postID uint, req domain.CreateCommentRequest) (*domain.Comment, error)
+	CreateComment(postID uint, req domain.CreateCommentRequest, userID uint) (*domain.Comment, error)
 	GetCommentsByPostID(postID uint) ([]domain.Comment, error)
 }
 
@@ -23,17 +23,16 @@ func NewCommentService(commentRepo repository.CommentRepository, postRepo reposi
 	}
 }
 
-func (s *commentService) CreateComment(postID uint, req domain.CreateCommentRequest) (*domain.Comment, error) {
-	// Pastikan post-nya ada dulu sebelum diberi komentar
+func (s *commentService) CreateComment(postID uint, req domain.CreateCommentRequest, userID uint) (*domain.Comment, error) {
 	_, err := s.postRepo.FindById(postID)
 	if err != nil {
 		return nil, errors.New("artikel tidak ditemukan")
 	}
 
 	comment := domain.Comment{
-		PostID:     postID,
-		AuthorName: req.AuthorName,
-		Content:    req.Content,
+		PostID:  postID,
+		Content: req.Content,
+		UserID:  userID,
 	}
 
 	err = s.commentRepo.Create(&comment)
@@ -45,7 +44,6 @@ func (s *commentService) CreateComment(postID uint, req domain.CreateCommentRequ
 }
 
 func (s *commentService) GetCommentsByPostID(postID uint) ([]domain.Comment, error) {
-	// Pastikan post-nya ada dulu
 	_, err := s.postRepo.FindById(postID)
 	if err != nil {
 		return nil, errors.New("artikel tidak ditemukan")
